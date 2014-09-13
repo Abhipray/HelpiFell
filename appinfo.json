@@ -10,7 +10,18 @@
     "longName": "HelpIFell",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/action_icon_minus.png",
+                "name": "NO",
+                "type": "png"
+            },
+            {
+                "file": "images/action_icon_plus.png",
+                "name": "YES",
+                "type": "png"
+            }
+        ]
     },
     "shortName": "HelpIFell",
     "uuid": "61b553c1-c3fb-4b72-bed1-7a96352bda33",

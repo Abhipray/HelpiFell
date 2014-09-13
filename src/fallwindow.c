@@ -86,7 +86,7 @@ void fall_window_disappear(Window *fall_window){
 }
 
 void fall_yes_handler(ClickRecognizerRef recognizer, void *context){
-  window_stack_pop();
+  window_stack_pop(true);
 }
 
 void fall_no_handler(ClickRecognizerRef recognizer, void *context){

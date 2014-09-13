@@ -1,10 +1,10 @@
 #include <pebble.h> //accel.h includes pebble.h
-#define FALL_KEY;
+
 Window *window, *fall_window;
 
 static ActionBarLayer *action_bar_fall;
-static GBitmap *my_action_yes;
-static GBitmap *my_action_no;
+static GBitmap *my_icon_yes;
+static GBitmap *my_icon_no;
 
 extern void accel_data_handler(AccelData *data, uint32_t num_samples); //in accel.c
 extern void fall_window_load(Window *fall_window);
@@ -18,8 +18,9 @@ void config_provider_fall(void *context);
 
 // Key values for AppMessage Dictionary
 enum {
-  STATUS_KEY = 0;
-	MESSAGE_KEY = 1;
+  STATUS_KEY = 0,
+	MESSAGE_KEY = 1,
+  FALL_KEY = 2
 };
 
 // Writes and sends message if not a minor fall
@@ -37,14 +38,14 @@ void send_message(int fall){
 		default:
 		  break;
 	}
-	F
+	dict_write_uint8(iter, STATUS_KEY, 0x1);
 	dict_write_end(iter);
-  	app_message_outbox_send();
+  app_message_outbox_send();
 }
 
 void launch_fall_window(void){
     accel_data_service_unsubscribe();
-    window_stack_push(fall_window, true/*animated*/);
+    window_stack_push(fall_window, true);
 }
 
 // Called when a message is received from PebbleKitJS
@@ -59,7 +60,7 @@ static void in_received_handler(DictionaryIterator *received, void *context) {
 	tuple = dict_find(received, MESSAGE_KEY);
 	if(tuple) {
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "Received Message: %s", tuple->value->cstring);
-	}}
+	}
 }
 // Called when an incoming message from PebbleKitJS is dropped
 static void in_dropped_handler(AppMessageResult reason, void *context) {
@@ -71,7 +72,7 @@ static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reas
   APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
 }
 	
-static void out_sent_handler(DictionaryIterator *iter, AppMessageResuly reason, void *context) {
+static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
@@ -93,12 +94,12 @@ void init(void) {
 	app_message_register_inbox_received(in_received_handler); 
 	app_message_register_inbox_dropped(in_dropped_handler); 
 	app_message_register_outbox_failed(out_failed_handler);
-	app_message_register_outbox_sent(out_sent_handler);
+	app_message_register_outbox_sent(outbox_sent_callback);
 		
 	app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 	 
   fall_window = window_create();
-  //window_set_click_config_provider(fall_window, click_config_provider2);
+  
   window_set_window_handlers(fall_window, (WindowHandlers) {
 	  .load = fall_window_load,
     .appear= fall_window_appear,
@@ -113,12 +114,12 @@ void init(void) {
   action_bar_layer_add_to_window(action_bar_fall, fall_window);
   // Set the click config provider:
   action_bar_layer_set_click_config_provider(action_bar_fall,
-                                             click_config_provider);
+                                             config_provider_fall);
   // Set the icons:
-  my_icon_yes = gbitmap_create_with_resource(RESOURCE_ID_PLUS);
-  my_icon_no = gbitmap_create_with_resource(RESOURCE_ID_MINUS);
-  action_bar_layer_set_icon(action_bar, BUTTON_ID_UP, &my_icon_yes);
-  action_bar_layer_set_icon(action_bar, BUTTON_ID_DOWN, &my_icon_no);
+  my_icon_yes = gbitmap_create_with_resource(RESOURCE_ID_YES);
+  my_icon_no = gbitmap_create_with_resource(RESOURCE_ID_NO);
+  action_bar_layer_set_icon(action_bar_fall, BUTTON_ID_UP, my_icon_yes);
+  action_bar_layer_set_icon(action_bar_fall, BUTTON_ID_DOWN, my_icon_no);
 }
 
 void deinit(void) {
