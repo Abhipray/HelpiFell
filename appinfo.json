@@ -1,0 +1,22 @@
+{
+    "appKeys": {
+        "message": 1,
+        "status": 0
+    },
+    "capabilities": [
+        ""
+    ],
+    "companyName": "abhiprays@gmail.com",
+    "longName": "HelpIFell",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "shortName": "HelpIFell",
+    "uuid": "61b553c1-c3fb-4b72-bed1-7a96352bda33",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
