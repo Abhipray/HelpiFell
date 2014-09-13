@@ -19,7 +19,7 @@ void config_provider_fall(void *context);
 // Key values for AppMessage Dictionary
 enum {
   STATUS_KEY = 0,
-	MESSAGE_KEY = 1
+	MESSAGE_KEY = 1,
 };
 
 // Writes and sends message if not a minor fall

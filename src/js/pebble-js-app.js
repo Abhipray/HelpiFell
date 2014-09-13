@@ -47,8 +47,16 @@ function locationSuccess(pos) {
 }
 
 function locationError(err) {
-// will set default to home address
+// will send the default of home address
+  var url = "http://felldown.herokuapp.com/events/majorfall?" +
+      39.95 + "&lng=" + -75.19;
 
+  // Send request to helpifelldown server
+  xhrRequest(url, 'GET', 
+    function(responseText) {   
+        console.log("Returned from sending to server");
+    }      
+  );
 }
 
 function getLocation() {
