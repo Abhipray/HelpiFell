@@ -1,5 +1,5 @@
 #include <pebble.h> //accel.h includes pebble.h
-
+#define FALL_KEY;
 Window *window, *fall_window;
 
 static ActionBarLayer *action_bar_fall;
@@ -18,18 +18,26 @@ void config_provider_fall(void *context);
 
 // Key values for AppMessage Dictionary
 enum {
-	STATUS_KEY = 0,	
-	MESSAGE_KEY = 1
+  STATUS_KEY = 0;
+	MESSAGE_KEY = 1;
 };
 
-
-// Write message to buffer & send
-void send_message(void){
+// Writes and sends message if not a minor fall
+void send_message(int fall){
 	DictionaryIterator *iter;
-	
-	app_message_outbox_begin(&iter);
-	dict_write_uint8(iter, STATUS_KEY, 0x1);
-	
+		app_message_outbox_begin(&iter);
+	switch(fall) {
+	  //send to web, but no text out
+		case 0x0: 
+			dict_write_uint8(iter, FALL_KEY, 0x0);
+			break;
+		case 0x1:
+		  dict_write_uint8(iter, FALL_KEY, 0x1);
+			break;
+		default:
+		  break;
+	}
+	F
 	dict_write_end(iter);
   	app_message_outbox_send();
 }
@@ -52,13 +60,19 @@ static void in_received_handler(DictionaryIterator *received, void *context) {
 	if(tuple) {
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "Received Message: %s", tuple->value->cstring);
 	}}
-
+}
 // Called when an incoming message from PebbleKitJS is dropped
-static void in_dropped_handler(AppMessageResult reason, void *context) {	
+static void in_dropped_handler(AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");	
 }
 
 // Called when PebbleKitJS does not acknowledge receipt of a message
 static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+}
+	
+static void out_sent_handler(DictionaryIterator *iter, AppMessageResuly reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
  void config_provider_fall(void *context) {
@@ -79,6 +93,7 @@ void init(void) {
 	app_message_register_inbox_received(in_received_handler); 
 	app_message_register_inbox_dropped(in_dropped_handler); 
 	app_message_register_outbox_failed(out_failed_handler);
+	app_message_register_outbox_sent(out_sent_handler);
 		
 	app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 	 
