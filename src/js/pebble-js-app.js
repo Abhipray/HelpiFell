@@ -1,27 +1,15 @@
 // Function to send a message to the Pebble using AppMessage API
-var dictionary = {
-  "KEY_FALL_STATUS" = fall_value;
-};
+
+var min_major;
 
 function sendMessage() {
-	Pebble.sendAppMessage(dictionary, 
-	  // ack message to console
-	  function(e) {
-		  console.log("Call for help successful!");
-		},
-		// nack message to console
-		function(e) {
-		  console.log("Call for help unsuccessful");
-    }			
-	
-);
-
+	Pebble.sendAppMessage({"status": 0});
 }
 
-function forwardMessage(){
+function forwardMessage(e){
+  min_major = e.payload.message;
   getLocation();
-  sendMessage(); //Send success or failure to Pebble
-  
+  sendMessage(); //Send success or failure to Pebble 
 }
 
 var xhrRequest = function (url, type, callback) {
@@ -36,9 +24,20 @@ var xhrRequest = function (url, type, callback) {
 function locationSuccess(pos) {
 // if location is successful will send message to web
     // Construct URL
-  var url = "http://felldown.herokuapp.com/events/majorfall?" +
+  var url;
+  if(min_major == 1)
+  {
+      console.log("major fall"); 
+      url = "http://felldown.herokuapp.com/events/majorfall?lat" +
       pos.coords.latitude + "&lng=" + pos.coords.longitude;
-
+  }
+  else
+  {
+      url = "http://felldown.herokuapp.com/events/minorfall?lat=" +
+      pos.coords.latitude + "&lng=" + pos.coords.longitude;
+  }
+  console.log(pos.coords.latitute);
+  console.log(pos.coords.longitude);
   // Send request to helpifelldown server
   xhrRequest(url, 'GET', 
     function(responseText) {   
@@ -73,6 +72,6 @@ Pebble.addEventListener("ready",
 Pebble.addEventListener("appmessage",
 							function(e) {
 								console.log("Received Status: " + e.payload.status);
-								forwardMessage();
+								forwardMessage(e);
 							});
 							
