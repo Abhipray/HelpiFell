@@ -54,7 +54,7 @@ void init(void) {
 	
 	send_message();
   //Register the accelerometer handle defined in accel.c
-  accel_data_service_subscribe(10, accel_data_handler);
+  accel_data_service_subscribe(1, accel_data_handler);
   accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
 }
 

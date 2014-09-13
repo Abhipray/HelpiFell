@@ -1,4 +1,4 @@
-// Function to send a message dsfjdsfjsalto the Pebble using AppMessage API
+// Function to send a message to the Pebble using AppMessage API
 function sendMessage() {
 	Pebble.sendAppMessage({"status": 0});
 	
