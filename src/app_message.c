@@ -1,4 +1,4 @@
-#include <pebble.h>
+#include <accel.h> //accel.h includes pebble.h
 
 Window *window;	
 	
@@ -53,6 +53,9 @@ void init(void) {
 	app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 	
 	send_message();
+  //Register the accelerometer handle defined in accel.c
+  accel_data_service_subscribe(10, accel_data_handler);
+  accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
 }
 
 void deinit(void) {
