@@ -19,8 +19,7 @@ void config_provider_fall(void *context);
 // Key values for AppMessage Dictionary
 enum {
   STATUS_KEY = 0,
-	MESSAGE_KEY = 1,
-  FALL_KEY = 2
+	MESSAGE_KEY = 1
 };
 
 // Writes and sends message if not a minor fall
@@ -60,6 +59,9 @@ static void in_received_handler(DictionaryIterator *received, void *context) {
 	tuple = dict_find(received, MESSAGE_KEY);
 	if(tuple) {
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "Received Message: %s", tuple->value->cstring);
+	}
+	if(tuple) {
+	  APP_LOG(APP_LOG_LEVEL_DEBUG, "Fell down value: %d", (int)tuple->value->uint32);
 	}
 }
 // Called when an incoming message from PebbleKitJS is dropped
