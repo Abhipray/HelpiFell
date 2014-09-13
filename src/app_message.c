@@ -29,10 +29,10 @@ void send_message(int fall){
 	switch(fall) {
 	  //send to web, but no text out
 		case 0x0: 
-			dict_write_uint8(iter, FALL_KEY, 0x0);
+			dict_write_uint8(iter, FALL_KEY_STATUS, 0x0);
 			break;
 		case 0x1:
-		  dict_write_uint8(iter, FALL_KEY, 0x1);
+		  dict_write_uint8(iter, FALL_KEY_STATUS, 0x1);
 			break;
 		default:
 		  break;
