@@ -1,6 +1,6 @@
 #include<pebble.h>
 #define BUF_SIZE 5
-#define THRESH 20000000
+#define THRESH 5000000
   
 static uint32_t accel_hist[BUF_SIZE];
 static uint32_t accel_index = 0;
@@ -10,6 +10,7 @@ extern void launch_fall_window(void);
 
 void accel_data_handler(AccelData *data, uint32_t num_samples) {
   // Process 10 events - every 1 second
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "accel_data_handler");
     char buf[80];
     snprintf(buf, 80, "x:%d y:%d z:%d\n", data->x, data->y, data->z);
     APP_LOG(APP_LOG_LEVEL_DEBUG, buf);  
@@ -25,15 +26,15 @@ void accel_data_handler(AccelData *data, uint32_t num_samples) {
       else if(accel_hist[i] > max)
         max = accel_hist[i];
     }
-    if(accel_index == BUF_SIZE)
+    if(accel_index <= BUF_SIZE)
       accel_index = 0;
     if(max - min > THRESH)
     {
       APP_LOG(APP_LOG_LEVEL_DEBUG, "ARE YOU OK?"); 
-      launch_fall_window();
       //Reset accelerometer history
       for(i = 0; i < BUF_SIZE; i++)
         accel_hist[i] = 0;
+      launch_fall_window();     
       
     }
 }

@@ -26,13 +26,13 @@ void fall_window_load(Window *window2) {
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
   text_layer_set_text(text_layer, "10");
   
-  note_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { bounds.size.w, 28 } });
+  note_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { 0.7 * bounds.size.w, 28 } });
   text_layer_set_font(note_layer, fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21));
   text_layer_set_text(note_layer, "Did you fall?");
   text_layer_set_text_alignment(note_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(note_layer));
   
-  note_layer2 = text_layer_create((GRect) { .origin = { 0, 100 }, .size = { bounds.size.w, 28 } });
+  note_layer2 = text_layer_create((GRect) { .origin = { 0, 100 }, .size = { 0.7*bounds.size.w, 28 } });
   text_layer_set_font(note_layer2, fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21));
   text_layer_set_text(note_layer2, "Are you OK?");
   text_layer_set_text_alignment(note_layer2, GTextAlignmentCenter);
@@ -47,18 +47,17 @@ void fall_window_unload(Window *fall_window) {
 }
 
 void fall_window_appear(Window *fall_window){
-  tick_timer_service_subscribe(SECOND_UNIT, countdown_handler);
   vibes_long_pulse();
   countdown = COUNTDOWN;
-  
+  tick_timer_service_subscribe(SECOND_UNIT, countdown_handler);
 }
 
 static void countdown_handler(struct tm *tick_time, TimeUnits units_changed){
-  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "countdown %d", countdown);
   if(countdown >= 0)
   {
     static char buf[] = "10";
-    snprintf(buf, sizeof(buf), "%d", countdown--);
+    snprintf(buf, sizeof(buf), "%d", countdown);
     text_layer_set_text(text_layer, buf);
     
     if(countdown < 3){
@@ -74,23 +73,29 @@ static void countdown_handler(struct tm *tick_time, TimeUnits units_changed){
   
   else if (countdown < -5)
   {
+    
     window_stack_pop(true);
   }
+  countdown--;
 }
 
 void fall_window_disappear(Window *fall_window){
   tick_timer_service_unsubscribe();
   //Register the accelerometer handle defined in accel.c
   accel_data_service_subscribe(1, accel_data_handler);
-  accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "fall_window_disappear");
+  accel_service_set_sampling_rate(ACCEL_SAMPLING_50HZ);
 }
 
 void fall_yes_handler(ClickRecognizerRef recognizer, void *context){
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "fall_yes_handler");
+  send_message(0);
   window_stack_pop(true);
 }
 
 void fall_no_handler(ClickRecognizerRef recognizer, void *context){
-    send_message(0);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "fall_no_handler");
+    send_message(1);
     text_layer_set_text(note_layer, "Call for help");
     text_layer_set_text(note_layer2, "sent");
     countdown = -2;

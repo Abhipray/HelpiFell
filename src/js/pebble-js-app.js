@@ -23,12 +23,12 @@ var xhrRequest = function (url, type, callback) {
 
 function locationSuccess(pos) {
 // if location is successful will send message to web
-    // Construct URL
+  // Construct URL
   var url;
   if(min_major == 1)
   {
       console.log("major fall"); 
-      url = "http://felldown.herokuapp.com/events/majorfall?lat" +
+      url = "http://felldown.herokuapp.com/events/majorfall?lat=" +
       pos.coords.latitude + "&lng=" + pos.coords.longitude;
   }
   else
@@ -47,16 +47,8 @@ function locationSuccess(pos) {
 }
 
 function locationError(err) {
-// will send the default of home address
-  var url = "http://felldown.herokuapp.com/events/majorfall?" +
-      39.95 + "&lng=" + -75.19;
+// will set default to home address
 
-  // Send request to helpifelldown server
-  xhrRequest(url, 'GET', 
-    function(responseText) {   
-        console.log("Returned from sending to server");
-    }      
-  );
 }
 
 function getLocation() {
@@ -73,7 +65,7 @@ Pebble.addEventListener("ready",
 							console.log("JS is ready");
 								
 							// Send notification to Web to notify contacts
-							getLocation();
+							//getLocation();
 							});
 												
 // Called when incoming message from the Pebble is received
