@@ -12,13 +12,13 @@
     "resources": {
         "media": [
             {
-                "file": "images/action_icon_minus.png",
-                "name": "NO",
+                "file": "images/action_icon_plus.png",
+                "name": "YES",
                 "type": "png"
             },
             {
-                "file": "images/action_icon_plus.png",
-                "name": "YES",
+                "file": "images/action_icon_minus.png",
+                "name": "NO",
                 "type": "png"
             }
         ]

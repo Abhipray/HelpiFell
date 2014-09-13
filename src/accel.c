@@ -5,7 +5,7 @@
 static uint32_t accel_hist[BUF_SIZE];
 static uint32_t accel_index = 0;
 
-extern void send_message(void); //Defined in app_message.c
+extern void send_message(int fall); //Defined in app_message.c
 extern void launch_fall_window(void);
 
 void accel_data_handler(AccelData *data, uint32_t num_samples) {

@@ -4,7 +4,7 @@
 static TextLayer *text_layer, *note_layer, *note_layer2;
 static int countdown = COUNTDOWN;
 
-extern void send_message(void);
+extern void send_message(int fall_no);
 extern void accel_data_handler(AccelData *data, uint32_t num_samples);
 
 void fall_yes_handler(ClickRecognizerRef recognizer, void *context);
@@ -67,7 +67,7 @@ static void countdown_handler(struct tm *tick_time, TimeUnits units_changed){
   }
   
   if(countdown == -1){
-    send_message();
+    send_message(1);
     text_layer_set_text(note_layer, "Call for help");
     text_layer_set_text(note_layer2, "sent");
   }
@@ -90,7 +90,7 @@ void fall_yes_handler(ClickRecognizerRef recognizer, void *context){
 }
 
 void fall_no_handler(ClickRecognizerRef recognizer, void *context){
-    send_message();
+    send_message(0);
     text_layer_set_text(note_layer, "Call for help");
     text_layer_set_text(note_layer2, "sent");
     countdown = -2;
