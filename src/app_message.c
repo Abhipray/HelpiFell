@@ -146,7 +146,7 @@ static void weights_handle(ClickRecognizerRef recognizer, void *context){
 }
 static void config_provider_main(void *context) {
     window_long_click_subscribe(BUTTON_ID_SELECT, 1200, panic_call, NULL);
-    window_long_click_subscribe(BUTTON_ID_UP, 1200, weights_handle, NULL);
+    window_long_click_subscribe(BUTTON_ID_UP, 200, weights_handle, NULL);
  }
 
 void init(void) {
