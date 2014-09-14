@@ -3,10 +3,12 @@
 var min_major;
 
 function sendMessage() {
+  console.log("JS- sendMessage");
 	Pebble.sendAppMessage({"status": 0});
 }
 
 function forwardMessage(e){
+  console.log("JS-Forward message");
   min_major = e.payload.message;
   getLocation();
   sendMessage(); //Send success or failure to Pebble 
@@ -24,6 +26,7 @@ var xhrRequest = function (url, type, callback) {
 function locationSuccess(pos) {
 // if location is successful will send message to web
   // Construct URL
+  console.log("JS-locationSuccess");
   var url;
   if(min_major == 1)
   {
@@ -36,8 +39,8 @@ function locationSuccess(pos) {
       url = "http://felldown.herokuapp.com/events/minorfall?lat=" +
       pos.coords.latitude + "&lng=" + pos.coords.longitude;
   }
-  console.log(pos.coords.latitute);
-  console.log(pos.coords.longitude);
+  console.log("Latitude " + pos.coords.latitude);
+  console.log("Longitude " + pos.coords.longitude);
   // Send request to helpifelldown server
   xhrRequest(url, 'GET', 
     function(responseText) {   

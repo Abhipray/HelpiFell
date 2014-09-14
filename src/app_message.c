@@ -17,10 +17,11 @@ extern void fall_window_disappear(Window *fall_window);
 extern void fall_no_handler(ClickRecognizerRef recognizer, void *context);
 extern void fall_yes_handler(ClickRecognizerRef recognizer, void *context);
 
-static void tick_handler(struct tm *tick_time, TimeUnits units_changed);
+void tick_handler(struct tm *tick_time, TimeUnits units_changed);
 void config_provider_fall(void *context);
 static void update_time();
 static void main_window_unload(Window *window);
+static void config_provider_main(void *context);
 
 // Key values for AppMessage Dictionary
 enum {
@@ -49,11 +50,13 @@ void send_message(int fall){
 }
 
 void launch_fall_window(void){
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Launch fall window");
     accel_data_service_unsubscribe();
     window_stack_push(fall_window, true);
 }
 
 static void main_window_load(Window *window) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "In main_window_load");
   // Create time TextLayer
   s_time_layer = text_layer_create(GRect(0, 55, 144, 50));
   text_layer_set_background_color(s_time_layer, GColorClear);
@@ -67,10 +70,10 @@ static void main_window_load(Window *window) {
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
  
-     // Make sure the time is displayed from the start
+  // Make sure the time is displayed from the start
   APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "IN MAIN WINDOW LOAD, About to update_time");
   update_time();
-  
+    
   //Register the accelerometer handle defined in accel.c
   accel_data_service_subscribe(BUF_SIZE, accel_data_handler);
   accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
@@ -78,6 +81,7 @@ static void main_window_load(Window *window) {
 
 // Called when a message is received from PebbleKitJS
 static void in_received_handler(DictionaryIterator *received, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "In recieved_handler");
 	Tuple *tuple;
 	
 	tuple = dict_find(received, STATUS_KEY);
@@ -100,16 +104,24 @@ static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reas
   APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
 }
 	
-static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
-}
+// static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+//   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+// }
 
  void config_provider_fall(void *context) {
        window_single_click_subscribe(BUTTON_ID_UP, fall_yes_handler);
        window_single_click_subscribe(BUTTON_ID_DOWN, fall_no_handler);
  }
 
+static void panic_call(ClickRecognizerRef recognizer, void *context){
+    launch_fall_window();
+}
+static void config_provider_main(void *context) {
+    window_long_click_subscribe(BUTTON_ID_SELECT, 2000, panic_call, NULL);   
+ }
+
 void init(void) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "INIT started");
 	window = window_create();
 	// Set handlers to manage the elements inside the Window
   window_set_window_handlers(window, (WindowHandlers) {
@@ -123,26 +135,11 @@ void init(void) {
   // Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   
-  // Create time TextLayer
-  s_time_layer = text_layer_create(GRect(0, 55, 144, 50));
-  text_layer_set_background_color(s_time_layer, GColorClear);
-  text_layer_set_text_color(s_time_layer, GColorBlack);
-  text_layer_set_text(s_time_layer, "00:00");
-
-  // Improve the layout to be more like a watchface
-  text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
-  text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
-
-  // Add it as a child layer to the Window's root layer
-  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
-  	
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "INIT");
-  
 	// Register AppMessage handlers
 	app_message_register_inbox_received(in_received_handler); 
 	app_message_register_inbox_dropped(in_dropped_handler); 
 	app_message_register_outbox_failed(out_failed_handler);
-	app_message_register_outbox_sent(outbox_sent_callback);
+	//app_message_register_outbox_sent(outbox_sent_callback);
 		
 	app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 	 
@@ -154,7 +151,8 @@ void init(void) {
     .disappear= fall_window_disappear,
     .unload = fall_window_unload,
   });
-  //window_set_click_config_provider(fall_window, config_provider_fall);
+  
+  window_set_click_config_provider(window, config_provider_main);
   
    // Initialize the action bar:
   action_bar_fall = action_bar_layer_create();
@@ -169,19 +167,20 @@ void init(void) {
   my_icon_no = gbitmap_create_with_resource(RESOURCE_ID_NO);
   action_bar_layer_set_icon(action_bar_fall, BUTTON_ID_UP, my_icon_yes);
   action_bar_layer_set_icon(action_bar_fall, BUTTON_ID_DOWN, my_icon_no);
-
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "INIT FINISHED");
 }
 
 static void main_window_unload(Window *window) {
+    accel_data_service_unsubscribe();
     // Destroy TextLayer
     text_layer_destroy(s_time_layer);
 }
 
 void deinit(void) {
-	app_message_deregister_callbacks();
-	window_destroy(window);
   window_destroy(fall_window);
+	window_destroy(window);
   action_bar_layer_destroy(action_bar_fall);
+  app_message_deregister_callbacks();
 }
 
 static void update_time() {
@@ -207,7 +206,7 @@ static void update_time() {
   text_layer_set_text(s_time_layer, buffer);
 }
 
-static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
 }
 
