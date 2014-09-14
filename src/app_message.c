@@ -1,5 +1,6 @@
 #include <pebble.h> //accel.h includes pebble.h
-
+#define BUF_SIZE 10
+  
 Window *window, *fall_window;
 
 ActionBarLayer *action_bar_fall;
@@ -65,9 +66,14 @@ static void main_window_load(Window *window) {
 
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
-  
-   // Make sure the time is displayed from the start
+ 
+     // Make sure the time is displayed from the start
+  APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "IN MAIN WINDOW LOAD, About to update_time");
   update_time();
+  
+  //Register the accelerometer handle defined in accel.c
+  accel_data_service_subscribe(BUF_SIZE, accel_data_handler);
+  accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
 }
 
 // Called when a message is received from PebbleKitJS
@@ -113,6 +119,9 @@ void init(void) {
   window_set_fullscreen(window, true);
   // Show the Window on the watch, with animated=true
   window_stack_push(window, true);
+      
+  // Register with TickTimerService
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   
   // Create time TextLayer
   s_time_layer = text_layer_create(GRect(0, 55, 144, 50));
@@ -126,12 +135,8 @@ void init(void) {
 
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
-  
-	
+  	
   APP_LOG(APP_LOG_LEVEL_DEBUG, "INIT");
-  //Register the accelerometer handle defined in accel.c
-  accel_data_service_subscribe(1, accel_data_handler);
-  accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
   
 	// Register AppMessage handlers
 	app_message_register_inbox_received(in_received_handler); 
@@ -164,9 +169,7 @@ void init(void) {
   my_icon_no = gbitmap_create_with_resource(RESOURCE_ID_NO);
   action_bar_layer_set_icon(action_bar_fall, BUTTON_ID_UP, my_icon_yes);
   action_bar_layer_set_icon(action_bar_fall, BUTTON_ID_DOWN, my_icon_no);
-  
-  // Register with TickTimerService
-  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+
 }
 
 static void main_window_unload(Window *window) {
@@ -190,14 +193,16 @@ static void update_time() {
   static char buffer[] = "00:00";
 
   // Write the current hours and minutes into the buffer
-  if(clock_is_24h_style() == true) {
-    // Use 24 hour format
-    strftime(buffer, sizeof("00:00"), "%H:%M", tick_time);
-  } else {
-    // Use 12 hour format
-    strftime(buffer, sizeof("00:00"), "%I:%M", tick_time);
+  if(tick_time != NULL)
+  {
+      if(clock_is_24h_style() == true) {
+      // Use 24 hour format
+      strftime(buffer, sizeof("00:00"), "%H:%M", tick_time);
+    } else {
+      // Use 12 hour format
+      strftime(buffer, sizeof("00:00"), "%I:%M", tick_time);
+    }
   }
-
   // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, buffer);
 }

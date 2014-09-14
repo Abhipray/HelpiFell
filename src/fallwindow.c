@@ -26,13 +26,13 @@ void fall_window_load(Window *window2) {
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
   text_layer_set_text(text_layer, "10");
   
-  note_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { 0.7 * bounds.size.w, 28 } });
+  note_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { 0.9 * bounds.size.w, 28 } });
   text_layer_set_font(note_layer, fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21));
   text_layer_set_text(note_layer, "Did you fall?");
   text_layer_set_text_alignment(note_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(note_layer));
   
-  note_layer2 = text_layer_create((GRect) { .origin = { 0, 100 }, .size = { 0.7*bounds.size.w, 28 } });
+  note_layer2 = text_layer_create((GRect) { .origin = { 0, 100 }, .size = { 0.9 * bounds.size.w, 28 } });
   text_layer_set_font(note_layer2, fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21));
   text_layer_set_text(note_layer2, "Are you OK?");
   text_layer_set_text_alignment(note_layer2, GTextAlignmentCenter);
@@ -72,8 +72,7 @@ static void countdown_handler(struct tm *tick_time, TimeUnits units_changed){
   }
   
   else if (countdown < -5)
-  {
-    
+  {    
     window_stack_pop(true);
   }
   countdown--;
