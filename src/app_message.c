@@ -104,9 +104,9 @@ static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reas
   APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
 }
 	
-// static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
-//   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
-// }
+static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+}
 
  void config_provider_fall(void *context) {
        window_single_click_subscribe(BUTTON_ID_UP, fall_yes_handler);
@@ -117,7 +117,7 @@ static void panic_call(ClickRecognizerRef recognizer, void *context){
     launch_fall_window();
 }
 static void config_provider_main(void *context) {
-    window_long_click_subscribe(BUTTON_ID_SELECT, 2000, panic_call, NULL);   
+    window_long_click_subscribe(BUTTON_ID_SELECT, 1500, panic_call, NULL);   
  }
 
 void init(void) {
@@ -139,7 +139,7 @@ void init(void) {
 	app_message_register_inbox_received(in_received_handler); 
 	app_message_register_inbox_dropped(in_dropped_handler); 
 	app_message_register_outbox_failed(out_failed_handler);
-	//app_message_register_outbox_sent(outbox_sent_callback);
+	app_message_register_outbox_sent(outbox_sent_callback);
 		
 	app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 	 

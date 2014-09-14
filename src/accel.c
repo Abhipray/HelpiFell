@@ -8,10 +8,9 @@ extern void send_message(int fall); //Defined in app_message.c
 extern void launch_fall_window(void);
 
 void accel_data_handler(AccelData *data, uint32_t num_samples) {
-  // Process 10 events - every 1 second
     APP_LOG(APP_LOG_LEVEL_DEBUG, "accel_data_handler");
-    //Add to buffer
-    uint32_t min = 4000*4000, max = 0, i = 0, tmp;
+  
+    uint32_t min = 4000*4000, max = 0, i, tmp;
       
     for(i = 0 ;i < num_samples; i++)
     {

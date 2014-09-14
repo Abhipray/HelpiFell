@@ -21,21 +21,20 @@ static void countdown_handler(struct tm *tick_time, TimeUnits units_changed);
 void fall_window_load(Window *window2) {
   Layer *window_layer = window_get_root_layer(window2);
   GRect bounds = layer_get_bounds(window_layer);
-  //text_layer = text_layer_create((GRect) { .origin = { 0, 72 }});
-//   text_layer = text_layer_create((GRect) { { 5, 0 }, { bounds.size.w - 2*5, bounds.size.h } });
-  text_layer = text_layer_create((GRect) { { 5, 0 }, { 0, bounds.size.h } });
+
+  text_layer = text_layer_create((GRect) { { 5, 0 }, { bounds.size.w - 2*5 - ACTION_BAR_WIDTH, bounds.size.h } });
   text_layer_set_text_alignment(text_layer, GTextAlignmentCenter);
   text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_ROBOTO_BOLD_SUBSET_49));
   layer_add_child(window_layer, text_layer_get_layer(text_layer));
   text_layer_set_text(text_layer, "10");
   
-  note_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { 0, 28 } });
+  note_layer = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { bounds.size.w - ACTION_BAR_WIDTH, 28 } });
   text_layer_set_font(note_layer, fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21));
   text_layer_set_text(note_layer, "Did you fall?");
   text_layer_set_text_alignment(note_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(note_layer));
   
-  note_layer2 = text_layer_create((GRect) { .origin = { 0, 100 }, .size = {0, 28 } });
+  note_layer2 = text_layer_create((GRect) { .origin = { 0, 100 }, .size = {bounds.size.w - ACTION_BAR_WIDTH, 28 } });
   text_layer_set_font(note_layer2, fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21));
   text_layer_set_text(note_layer2, "Are you OK?");
   text_layer_set_text_alignment(note_layer2, GTextAlignmentCenter);
