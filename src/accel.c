@@ -1,5 +1,5 @@
 #include<pebble.h>
-#define BUF_SIZE 10
+#define BUF_SIZE 100
 #define THRESH 25000000
   
 

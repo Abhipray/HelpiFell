@@ -1,5 +1,5 @@
 #include <pebble.h> //accel.h includes pebble.h
-#define BUF_SIZE 10
+#define BUF_SIZE 100
   
 Window *window, *fall_window;
 
@@ -76,7 +76,7 @@ static void main_window_load(Window *window) {
     
   //Register the accelerometer handle defined in accel.c
   accel_data_service_subscribe(BUF_SIZE, accel_data_handler);
-  accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
+  accel_service_set_sampling_rate(ACCEL_SAMPLING_50HZ);
 }
 
 // Called when a message is received from PebbleKitJS

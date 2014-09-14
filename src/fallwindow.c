@@ -87,7 +87,7 @@ void fall_window_disappear(Window *fall_window){
   //Register the accelerometer handle defined in accel.c
   accel_data_service_subscribe(BUF_SIZE, accel_data_handler);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "fall_window_disappear");
-  accel_service_set_sampling_rate(ACCEL_SAMPLING_10HZ);
+  accel_service_set_sampling_rate(ACCEL_SAMPLING_50HZ);
 }
 
 void fall_yes_handler(ClickRecognizerRef recognizer, void *context){
