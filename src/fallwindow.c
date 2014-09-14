@@ -1,13 +1,13 @@
 #include<pebble.h>
 #define COUNTDOWN 10
-#define BUF_SIZE 10
+#define BUF_SIZE 50
   
 static TextLayer *text_layer, *note_layer, *note_layer2;
 static int countdown = COUNTDOWN;
 
 extern void send_message(int fall_no);
 extern void accel_data_handler(AccelData *data, uint32_t num_samples);
-extern void tick_handler(struct tm *tick_time, TimeUnits units_changed);
+// extern void tick_handler(struct tm *tick_time, TimeUnits units_changed);
 
 void fall_yes_handler(ClickRecognizerRef recognizer, void *context);
 void fall_no_handler(ClickRecognizerRef recognizer, void *context);
@@ -83,11 +83,11 @@ static void countdown_handler(struct tm *tick_time, TimeUnits units_changed){
 void fall_window_disappear(Window *fall_window){
   tick_timer_service_unsubscribe();
   // Register with TickTimerService
-  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  
   //Register the accelerometer handle defined in accel.c
-  accel_data_service_subscribe(BUF_SIZE, accel_data_handler);
+//   accel_data_service_subscribe(BUF_SIZE, accel_data_handler);
   APP_LOG(APP_LOG_LEVEL_DEBUG, "fall_window_disappear");
-  accel_service_set_sampling_rate(ACCEL_SAMPLING_50HZ);
+//   accel_service_set_sampling_rate(ACCEL_SAMPLING_50HZ);
 }
 
 void fall_yes_handler(ClickRecognizerRef recognizer, void *context){

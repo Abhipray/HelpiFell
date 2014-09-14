@@ -4,15 +4,9 @@ var min_major;
 
 function sendMessage() {
   console.log("JS- sendMessage");
-	Pebble.sendAppMessage({"status": 0});
+  Pebble.sendAppMessage({"status": 0, "message": "oLELZ"});
 }
 
-function forwardMessage(e){
-  console.log("JS-Forward message");
-  min_major = e.payload.message;
-  getLocation();
-  sendMessage(); //Send success or failure to Pebble 
-}
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
@@ -22,6 +16,26 @@ var xhrRequest = function (url, type, callback) {
   xhr.open(type, url);
   xhr.send();
 };
+
+function send_weight(w){
+  var url = "http://felldown.herokuapp.com/events/weight?weight=" + w;
+    xhrRequest(url, 'GET', 
+    function(responseText) {   
+        console.log("Returned from sending to server");
+    }      
+  );
+}
+function forwardMessage(e){
+  console.log("JS-Forward message");
+  min_major = e.payload.message;
+  if(e.payload.status === 0x2){
+    send_weight(e.payload.message);  
+  }
+  else{
+    getLocation();
+  }
+  sendMessage(); //Send success or failure to Pebble 
+}
 
 function locationSuccess(pos) {
 // if location is successful will send message to web
@@ -62,13 +76,22 @@ function getLocation() {
 	);
 }
 
+// function pollProximity(){
+//    // Send request to helpifelldown server
+//   var url = "http://felldown.herokuapp.com/events/triggers.json";
+//     xhrRequest(url, 'GET', 
+//     function(responseText) {   
+//         console.log(" ");
+//     }      
+//   );
+// }
 // Called when JS is ready and watchface open
 Pebble.addEventListener("ready",
 							function(e) {
 							console.log("JS is ready");
 								
 							// Send notification to Web to notify contacts
-							//getLocation();
+							//setInterval(pollProximity, 30000);
 							});
 												
 // Called when incoming message from the Pebble is received

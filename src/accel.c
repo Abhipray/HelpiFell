@@ -1,6 +1,6 @@
 #include<pebble.h>
-#define BUF_SIZE 100
-#define THRESH 25000000
+#define BUF_SIZE 50
+#define THRESH 20000000
   
 
 
@@ -15,10 +15,13 @@ void accel_data_handler(AccelData *data, uint32_t num_samples) {
     for(i = 0 ;i < num_samples; i++)
     {
       tmp = (uint32_t)((data[i].x)*(data[i].x) + (data[i].y)*(data[i].y) + (data[i].z)*(data[i].z));
-      if(tmp < min)
-        min = tmp;
-      if(tmp > max)
-        max = tmp;
+      if(!data[i].did_vibrate){
+        if(tmp < min)
+          min = tmp;
+        if(tmp > max)
+          max = tmp;
+      }
+  
       //APP_LOG(APP_LOG_LEVEL_DEBUG, "x:%d y:%d z:%d", data[i].x, data[i].y, data[i].z); 
     }
      

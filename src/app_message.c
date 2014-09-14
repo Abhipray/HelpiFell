@@ -1,5 +1,5 @@
 #include <pebble.h> //accel.h includes pebble.h
-#define BUF_SIZE 100
+#define BUF_SIZE 50
   
 Window *window, *fall_window;
 
@@ -16,12 +16,14 @@ extern void fall_window_appear(Window *fall_window);
 extern void fall_window_disappear(Window *fall_window);
 extern void fall_no_handler(ClickRecognizerRef recognizer, void *context);
 extern void fall_yes_handler(ClickRecognizerRef recognizer, void *context);
+extern void show_weights(void);
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed);
 void config_provider_fall(void *context);
 static void update_time();
 static void main_window_unload(Window *window);
 static void config_provider_main(void *context);
+void send_weight(int w);
 
 // Key values for AppMessage Dictionary
 enum {
@@ -49,6 +51,17 @@ void send_message(int fall){
   app_message_outbox_send();
 }
 
+// Writes and sends message if not a minor fall
+void send_weight(int w){
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "send_weight");
+	DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  dict_write_uint8(iter, MESSAGE_KEY, w);
+	dict_write_uint8(iter, STATUS_KEY, 0x2);
+	dict_write_end(iter);
+  app_message_outbox_send();
+}
+
 void launch_fall_window(void){
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Launch fall window");
     accel_data_service_unsubscribe();
@@ -61,7 +74,7 @@ static void main_window_load(Window *window) {
   s_time_layer = text_layer_create(GRect(0, 55, 144, 50));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
-  text_layer_set_text(s_time_layer, "00:00");
+  //text_layer_set_text(s_time_layer, "00:00");
 
   // Improve the layout to be more like a watchface
   text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
@@ -72,12 +85,23 @@ static void main_window_load(Window *window) {
  
   // Make sure the time is displayed from the start
   APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "IN MAIN WINDOW LOAD, About to update_time");
-  update_time();
-    
+  update_time();    
+}
+
+static void main_window_appear(Window *window){
   //Register the accelerometer handle defined in accel.c
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "main_window_appear");
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   accel_data_service_subscribe(BUF_SIZE, accel_data_handler);
   accel_service_set_sampling_rate(ACCEL_SAMPLING_50HZ);
 }
+
+static void main_window_disappear(Window *window){
+  //Register the accelerometer handle defined in accel.c
+  accel_data_service_unsubscribe();
+  tick_timer_service_unsubscribe();
+}
+
 
 // Called when a message is received from PebbleKitJS
 static void in_received_handler(DictionaryIterator *received, void *context) {
@@ -116,8 +140,13 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 static void panic_call(ClickRecognizerRef recognizer, void *context){
     launch_fall_window();
 }
+
+static void weights_handle(ClickRecognizerRef recognizer, void *context){
+    show_weights();
+}
 static void config_provider_main(void *context) {
-    window_long_click_subscribe(BUTTON_ID_SELECT, 1500, panic_call, NULL);   
+    window_long_click_subscribe(BUTTON_ID_SELECT, 1200, panic_call, NULL);
+    window_long_click_subscribe(BUTTON_ID_UP, 1200, weights_handle, NULL);
  }
 
 void init(void) {
@@ -126,6 +155,8 @@ void init(void) {
 	// Set handlers to manage the elements inside the Window
   window_set_window_handlers(window, (WindowHandlers) {
     .load = main_window_load,
+    .appear= main_window_appear,
+    .disappear= main_window_disappear,
     .unload = main_window_unload
   });
   window_set_fullscreen(window, true);
